@@ -7,5 +7,21 @@
 <body>
   <h1>反応速度チェックツール</h1>
   <p>指定された色が表示されたら、すぐにクリックしてください。</p>
+
+  <!-- スタートボタン -->
+  <button id="startBtn">スタート</button>
+
+  <!-- ここに測定結果や説明を表示 -->
+  <div id="info"></div>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const infoDiv = document.getElementById('info');
+
+    startBtn.addEventListener('click', function() {
+      infoDiv.textContent = "準備中...";
+      // ステップ4 以降で実装を続けます
+    });
+  </script>
 </body>
 </html>
