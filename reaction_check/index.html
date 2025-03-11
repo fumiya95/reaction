@@ -3,24 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <title>反応速度チェックツール</title>
+  <style>
+    #target {
+      width: 200px;
+      height: 200px;
+      background-color: #ccc;
+      margin: 20px auto;
+      display: none; /* 最初は表示しない */
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <h1>反応速度チェックツール</h1>
   <p>指定された色が表示されたら、すぐにクリックしてください。</p>
 
-  <!-- スタートボタン -->
   <button id="startBtn">スタート</button>
-
-  <!-- ここに測定結果や説明を表示 -->
   <div id="info"></div>
+
+  <!-- クリック対象のエリア -->
+  <div id="target"></div>
 
   <script>
     const startBtn = document.getElementById('startBtn');
     const infoDiv = document.getElementById('info');
+    const targetDiv = document.getElementById('target');
+
+    let clickAllowed = false; // クリックを受け付けるかどうか
 
     startBtn.addEventListener('click', function() {
-      infoDiv.textContent = "準備中...";
-      // ステップ4 以降で実装を続けます
+      infoDiv.textContent = "ランダムなタイミングで色が表示されます。待機してください...";
+      targetDiv.style.display = "none";
+      clickAllowed = false;
+
+      // ランダム時間(2~5秒)待ってから色表示
+      const waitTime = Math.random() * 3000 + 2000; // 2000～5000ミリ秒
+      setTimeout(function(){
+        targetDiv.style.backgroundColor = "red"; // 色を赤に設定
+        targetDiv.style.display = "block";
+        clickAllowed = true; // クリック受付開始
+      }, waitTime);
+    });
+
+    targetDiv.addEventListener('click', function() {
+      if(!clickAllowed) return; // まだ許可されていないタイミングのクリックは無視
+      infoDiv.textContent = "クリックしました！（このあと反応時間を表示）";
+      // 次のステップで実測処理を追加
     });
   </script>
 </body>
