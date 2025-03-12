@@ -9,7 +9,7 @@
       height: 200px;
       background-color: #ccc;
       margin: 20px auto;
-      display: none; /* 最初は表示しない */
+      display: none;
       cursor: pointer;
     }
   </style>
@@ -21,34 +21,38 @@
   <button id="startBtn">スタート</button>
   <div id="info"></div>
 
-  <!-- クリック対象のエリア -->
   <div id="target"></div>
 
   <script>
     const startBtn = document.getElementById('startBtn');
-    const infoDiv = document.getElementById('info');
+    const infoDiv   = document.getElementById('info');
     const targetDiv = document.getElementById('target');
 
-    let clickAllowed = false; // クリックを受け付けるかどうか
+    let clickAllowed = false;
+    let startTime = 0; // 色が表示された時刻
 
     startBtn.addEventListener('click', function() {
       infoDiv.textContent = "ランダムなタイミングで色が表示されます。待機してください...";
       targetDiv.style.display = "none";
       clickAllowed = false;
 
-      // ランダム時間(2~5秒)待ってから色表示
-      const waitTime = Math.random() * 3000 + 2000; // 2000～5000ミリ秒
+      const waitTime = Math.random() * 3000 + 2000; // 2～5秒
       setTimeout(function(){
-        targetDiv.style.backgroundColor = "red"; // 色を赤に設定
+        targetDiv.style.backgroundColor = "red";
         targetDiv.style.display = "block";
-        clickAllowed = true; // クリック受付開始
+        startTime = Date.now(); // 今の時刻を記録
+        clickAllowed = true;
       }, waitTime);
     });
 
     targetDiv.addEventListener('click', function() {
-      if(!clickAllowed) return; // まだ許可されていないタイミングのクリックは無視
-      infoDiv.textContent = "クリックしました！（このあと反応時間を表示）";
-      // 次のステップで実測処理を追加
+      if(!clickAllowed) return;
+      const endTime = Date.now();
+      const reactionTime = endTime - startTime; // ミリ秒
+      infoDiv.textContent = "反応時間: " + reactionTime + " ms";
+      // クリック後はすぐに消す
+      targetDiv.style.display = "none";
+      clickAllowed = false;
     });
   </script>
 </body>
