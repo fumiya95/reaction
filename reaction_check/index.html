@@ -29,28 +29,31 @@
     const targetDiv = document.getElementById('target');
 
     let clickAllowed = false;
-    let startTime = 0; // 色が表示された時刻
+    let startTime = 0;
 
-    startBtn.addEventListener('click', function() {
+    function startGame() {
       infoDiv.textContent = "ランダムなタイミングで色が表示されます。待機してください...";
       targetDiv.style.display = "none";
       clickAllowed = false;
 
-      const waitTime = Math.random() * 3000 + 2000; // 2～5秒
+      const waitTime = Math.random() * 3000 + 2000;
       setTimeout(function(){
         targetDiv.style.backgroundColor = "red";
         targetDiv.style.display = "block";
-        startTime = Date.now(); // 今の時刻を記録
+        startTime = Date.now();
         clickAllowed = true;
       }, waitTime);
+    }
+
+    startBtn.addEventListener('click', function() {
+      startGame();
     });
 
     targetDiv.addEventListener('click', function() {
       if(!clickAllowed) return;
       const endTime = Date.now();
-      const reactionTime = endTime - startTime; // ミリ秒
+      const reactionTime = endTime - startTime;
       infoDiv.textContent = "反応時間: " + reactionTime + " ms";
-      // クリック後はすぐに消す
       targetDiv.style.display = "none";
       clickAllowed = false;
     });
