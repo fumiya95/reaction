@@ -16,7 +16,7 @@
 </head>
 <body>
   <h1>反応速度チェックツール</h1>
-  <p>指定された色が表示されたら、すぐにクリックしてください。</p>
+  <p>色が表示されたらすぐにクリックしてください。</p>
 
   <button id="startBtn">スタート</button>
   <div id="info"></div>
@@ -31,6 +31,13 @@
     let clickAllowed = false;
     let startTime = 0;
 
+    const colors = ["red", "blue", "green", "orange", "purple"];
+
+    function getRandomColor() {
+      const index = Math.floor(Math.random() * colors.length);
+      return colors[index];
+    }
+
     function startGame() {
       infoDiv.textContent = "ランダムなタイミングで色が表示されます。待機してください...";
       targetDiv.style.display = "none";
@@ -38,7 +45,8 @@
 
       const waitTime = Math.random() * 3000 + 2000;
       setTimeout(function(){
-        targetDiv.style.backgroundColor = "red";
+        const randomColor = getRandomColor();
+        targetDiv.style.backgroundColor = randomColor;
         targetDiv.style.display = "block";
         startTime = Date.now();
         clickAllowed = true;
