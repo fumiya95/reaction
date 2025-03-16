@@ -12,6 +12,9 @@
       display: none;
       cursor: pointer;
     }
+    #stats {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -20,16 +23,24 @@
 
   <button id="startBtn">スタート</button>
   <div id="info"></div>
-
   <div id="target"></div>
+
+  <div id="stats">
+    <p>プレイ回数: <span id="count">0</span></p>
+    <p>平均反応時間: <span id="average">--</span> ms</p>
+  </div>
 
   <script>
     const startBtn = document.getElementById('startBtn');
     const infoDiv   = document.getElementById('info');
     const targetDiv = document.getElementById('target');
+    const countSpan = document.getElementById('count');
+    const avgSpan   = document.getElementById('average');
 
     let clickAllowed = false;
     let startTime = 0;
+    let playCount = 0;
+    let totalTime = 0;
 
     const colors = ["red", "blue", "green", "orange", "purple"];
 
@@ -53,6 +64,14 @@
       }, waitTime);
     }
 
+    function updateStats(reactionTime) {
+      playCount++;
+      totalTime += reactionTime;
+      const avgTime = (totalTime / playCount).toFixed(1);
+      countSpan.textContent = playCount;
+      avgSpan.textContent = avgTime;
+    }
+
     startBtn.addEventListener('click', function() {
       startGame();
     });
@@ -64,6 +83,9 @@
       infoDiv.textContent = "反応時間: " + reactionTime + " ms";
       targetDiv.style.display = "none";
       clickAllowed = false;
+
+      // 統計更新
+      updateStats(reactionTime);
     });
   </script>
 </body>
