@@ -1,29 +1,32 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>反応速度チェックツール</title>
+  <title>反応速度チェック（固定場所・色変化 + ランク表示）</title>
   <style>
     body {
-      text-align: center;
       font-family: sans-serif;
-      margin: 20px;
+      text-align: center;
+      margin: 40px;
+    }
+    #info {
+      margin: 10px;
+      font-size: 1.1em;
     }
     #target {
-      width: 200px;
-      height: 200px;
-      background-color: #ccc;
-      margin: 20px auto;
-      display: none;
+      width: 150px;
+      height: 150px;
+      background-color: gray; /* 最初はグレー */
+      margin: 30px auto;      /* 中央寄せ */
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      color: #fff;
       cursor: pointer;
-      border-radius: 10px;
-      transition: background-color 0.3s;
-    }
-    #startBtn {
-      font-size: 1.2em;
-      padding: 10px 20px;
-      cursor: pointer;
-      margin-bottom: 10px;
+      user-select: none;
     }
     #stats {
       margin-top: 20px;
@@ -32,80 +35,105 @@
       display: inline-block;
       text-align: left;
     }
-    #info {
-      margin: 10px;
-      font-size: 1.1em;
+    #rankArea {
+      margin-top: 20px;
+      font-size: 1.3em;
+      color: #ff0066;
     }
   </style>
 </head>
 <body>
-  <h1>反応速度チェックツール</h1>
-  <p>色が表示されたらすぐにクリックしてください。</p>
+  <h1>反応速度チェック</h1>
+  <p>この丸にカーソルを合わせて待機。色が変わったらすぐにクリックしてください。</p>
 
   <button id="startBtn">スタート</button>
   <div id="info"></div>
-  <div id="target"></div>
+
+  <!-- クリック対象 -->
+  <div id="target">待機</div>
 
   <div id="stats">
-    <p>プレイ回数: <span id="count">0</span></p>
+    <p>プレイ回数: <span id="count">0</span>/5</p>
     <p>平均反応時間: <span id="average">--</span> ms</p>
   </div>
 
+  <!-- ランク表示 -->
+  <div id="rankArea"></div>
+
   <script>
-    const startBtn = document.getElementById('startBtn');
+    const startBtn  = document.getElementById('startBtn');
     const infoDiv   = document.getElementById('info');
     const targetDiv = document.getElementById('target');
     const countSpan = document.getElementById('count');
     const avgSpan   = document.getElementById('average');
+    const rankArea  = document.getElementById('rankArea');
 
     let clickAllowed = false;
     let startTime = 0;
-    let playCount = 0;
-    let totalTime = 0;
 
-    const colors = ["red", "blue", "green", "orange", "purple"];
+    let playCount = 0;    // 何回プレイしたか
+    let totalTime = 0;    // 累計反応時間
 
-    function getRandomColor() {
-      const index = Math.floor(Math.random() * colors.length);
-      return colors[index];
+    // 反応速度 => ランク変換
+    // （閾値は例示です。お好みで調整してください。）
+    function getRank(avgTime) {
+      if (avgTime < 150) return "S+";
+      if (avgTime < 200) return "S";
+      if (avgTime < 300) return "A";
+      if (avgTime < 400) return "B";
+      if (avgTime < 500) return "C";
+      if (avgTime < 600) return "D";
+      return "E";
     }
 
-    function startGame() {
-      infoDiv.textContent = "ランダムなタイミングで色が表示されます。待機してください...";
-      targetDiv.style.display = "none";
-      clickAllowed = false;
+    // スタートボタン押下 => ランダム待機後に色を変化
+    startBtn.addEventListener('click', function() {
+      // もし既に5回プレイ済みならリセットして再開してもOK
+      // 今回は特に処理しない(何度でもやりたいならここでリセットロジック)
 
+      infoDiv.textContent = "色が変わるまで、丸の上でマウスを待機してください...";
+      targetDiv.textContent = "待機";
+      targetDiv.style.backgroundColor = "gray";
+      clickAllowed = false;
+      rankArea.textContent = ""; // ランク表示を消しておく
+
+      // 2～5秒のランダム待機
       const waitTime = Math.random() * 3000 + 2000;
       setTimeout(function(){
-        const randomColor = getRandomColor();
-        targetDiv.style.backgroundColor = randomColor;
-        targetDiv.style.display = "block";
+        targetDiv.style.backgroundColor = "red";
+        targetDiv.textContent = "クリック!";
         startTime = Date.now();
         clickAllowed = true;
       }, waitTime);
-    }
-
-    function updateStats(reactionTime) {
-      playCount++;
-      totalTime += reactionTime;
-      const avgTime = (totalTime / playCount).toFixed(1);
-      countSpan.textContent = playCount;
-      avgSpan.textContent = avgTime;
-    }
-
-    startBtn.addEventListener('click', function() {
-      startGame();
     });
 
+    // 丸をクリックしたときの処理
     targetDiv.addEventListener('click', function() {
-      if(!clickAllowed) return;
+      if(!clickAllowed) return;  // まだ受付じゃないなら無視
+
       const endTime = Date.now();
       const reactionTime = endTime - startTime;
-      infoDiv.textContent = "反応時間: " + reactionTime + " ms";
-      targetDiv.style.display = "none";
+      infoDiv.textContent = `反応時間: ${reactionTime} ms`;
       clickAllowed = false;
 
-      updateStats(reactionTime);
+      // 色をグレーに戻す
+      targetDiv.style.backgroundColor = "gray";
+      targetDiv.textContent = "待機";
+
+      // 統計更新
+      playCount++;
+      totalTime += reactionTime;
+      let avgTime = (totalTime / playCount).toFixed(1);
+
+      // 画面表示
+      countSpan.textContent = playCount;
+      avgSpan.textContent = avgTime;
+
+      // 5回プレイしたらランク表示
+      if (playCount === 5) {
+        const rank = getRank(avgTime);
+        rankArea.textContent = `あなたのランク: ${rank}`;
+      }
     });
   </script>
 </body>
